@@ -42,9 +42,9 @@ for i = 1 : par.cls_num
     D = mexTrainDL([XN_t;XC_t], param);
     Dini{i} = D;
     clear D;
-    Dict_BID_Initial = sprintf('Data/temp_BID_Dict_BCGD_ADPU_DSCDL_Initial_2_50.mat');
+    Dict_BID_Initial = sprintf('Data/temp_BID_Dict_BCGD_ADPU_DSCDL_Initial_test.mat');
     save(Dict_BID_Initial,'Dini');
-    % Double S emi-Coupled Dictionary Learning
+    % Double Semi-Coupled Dictionary Learning
     D = Dini{i};
     Dn = D(1:par.win * par.win,:);
     Dc = D(par.win * par.win+1:end,:);

@@ -1,19 +1,16 @@
 function im_out = bscdl_BID_full(IMin_y,model,Dict,par,param)
-[h,w,ch] = size(IMin_y);
-
-psf = fspecial('gaussian', par.win+2, 2.2);
-XN = data2patch(IMin_y,  par);
+[h, w, ch] = size(IMin_y);
 % Initial
 im_out = IMin_y;
-
+XN = data2patch(IMin_y,  par);
 AN = zeros(par.K, size(XN, 2));
 AC = zeros(par.K, size(XN, 2));
 for t = 1 : par.nInnerLoop
     if t == 1
-                YH = data2patch(conv2(im_out, psf, 'same') - im_out, par);
-%         YH = data2patch(conv2(im_out, psf, 'same'), par);
-%         meanY = repmat(mean(YH), [par.win^2 1]);
-%         YH = YH - meanY;
+        psf = fspecial('gaussian', par.win+2, 2.2);
+        YH = data2patch(conv2(im_out, psf, 'same') - im_out, par);
+        meanY = repmat(mean(YH), [par.win^2 1]);
+        YH = YH - meanY;
         %% GMM: full posterior calculation
         PYZ = zeros(model.nmodels,size(YH,2));
         for i = 1:model.nmodels
@@ -32,40 +29,35 @@ for t = 1 : par.nInnerLoop
     XC = XC - meanX;
     for i = 1 : par.cls_num
         idx_cluster   = find(cls_idx == i);
-        length_idx = length(idx_cluster);
-        start_idx = [1, length_idx];
-        for j  = 1 : length(start_idx) - 1
-            idx_temp = idx_cluster(start_idx(j):start_idx(j+1));
-            Xc    = double(XC(:, idx_temp));
-            Xn    = double(XN(:, idx_temp));
-            Dc    = Dict.DC{i};
-            Dn    = Dict.DN{i};
-            Uc    = Dict.UC{i};
-            Un    = Dict.UN{i};
-            if (t == 1)
-                Alphan = mexLasso(Xn, Dn, param);
-                Alphac = Uc \ Un * Alphan;
-                Xc = Dc * Alphac;
-            else
-                Alphac = AC(:, idx_temp);
-            end
-            D = [Dn; par.sqrtmu * Un]; % Wn ->Un 07/22/2016;
-            Y = [Xn; par.sqrtmu * Uc * full(Alphac)];
-            Alphan = mexLasso(Y, D,param);
-            clear Y D;
-            %% CVPR2012 SCDL case
-            D = [Dc; par.sqrtmu * Uc];
-            Y = [Xc; par.sqrtmu * Un * full(Alphan)];
-            Alphac = full(mexLasso(Y, D,param));
-            clear Y D;
-            %             %% ICCV2013 MML case
-            %             Alphac = Uc \ Un * Alphan;
-            %% Reconstruction
+        Xc    = double(XC(:, idx_cluster));
+        Xn    = double(XN(:, idx_cluster));
+        Dc    = Dict.DC{i};
+        Dn    = Dict.DN{i};
+        Uc    = Dict.UC{i};
+        Un    = Dict.UN{i};
+        if (t == 1)
+            Alphan = mexLasso(Xn, Dn, param);
+            Alphac = Uc \ Un * Alphan;
             Xc = Dc * Alphac;
-            XC(:, idx_temp) = Xc;
-            AN(:, idx_temp) = Alphan;
-            AC(:, idx_temp) = Alphac;
+        else
+            Alphac = AC(:, idx_cluster);
         end
+        D = [Dn; par.sqrtmu * Un]; % Wn ->Un 07/22/2016;
+        Y = [Xn; par.sqrtmu * Uc * full(Alphac)];
+        Alphan = mexLasso(Y, D,param);
+        clear Y D;
+        %% CVPR2012 SCDL case
+        D = [Dc; par.sqrtmu * Uc];
+        Y = [Xc; par.sqrtmu * Un * full(Alphan)];
+        Alphac = full(mexLasso(Y, D,param));
+        clear Y D;
+        %             %% ICCV2013 MML case
+        %             Alphac = Uc \ Un * Alphan;
+        %% Reconstruction
+        Xc = Dc * Alphac;
+        XC(:, idx_cluster) = Xc;
+        AN(:, idx_cluster) = Alphan;
+        AC(:, idx_cluster) = Alphac;
     end
     im_out = patch2data(XC+meanX, h, w, 1,par.win, par.step);
 end

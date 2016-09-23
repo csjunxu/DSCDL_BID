@@ -2,14 +2,14 @@ clear;
 addpath('Data');
 addpath('Utilities');
 addpath('SPAMS');
-Original_image_dir = 'C:/Users/csjunxu/Desktop/Projects/crosschannel_CVPR2016/ccnoise_denoising/';
-fpath = fullfile(Original_image_dir, '*_real.png');
-GT_fpath = fullfile(Original_image_dir, '*_mean.png');
-CC_fpath = fullfile(Original_image_dir, '*_ours.png');
+Original_image_dir = 'C:\Users\csjunxu\Desktop\CVPR2017\crosschannel_CVPR2016\real_image_noise_dataset\parts\';
+fpath = fullfile(Original_image_dir, '*.png');
+GT_fpath = fullfile(Original_image_dir, 'CC_Mean_*.png');
+CC_fpath = fullfile(Original_image_dir, 'CC_Noisy_*.png');
 im_dir  = dir(fpath);
 GT_im_dir  = dir(GT_fpath);
 CC_im_dir  = dir(CC_fpath);
-im_num = length(im_dir);
+im_num = length(CC_im_dir);
 
 %% load parameters and dictionary
 load Data/params.mat par param;
@@ -22,21 +22,22 @@ type = 'all';
 % 'random';
 % 'middle';
 % 'all';
-
-for sqrtmu = [0.1:0.1:1]
+for sqrtmu = [0.2:0.1:1]
+    load ImageIndex.mat;
     par.sqrtmu = sqrtmu;
-    PSNR = zeros(1,im_num);
-    SSIM = zeros(1,im_num);
-    CCPSNR = zeros(1,im_num);
-    CCSSIM = zeros(1,im_num);
-    for i = 1:im_num
-        IMin = im2double(imread(fullfile(Original_image_dir, im_dir(i).name)));
-        S = regexp(im_dir(i).name, '\.', 'split');
-        IMname = S{1};
+    PSNR = [];
+    SSIM = [];
+    CCPSNR = [];
+    CCSSIM = [];
+    for i = ImageIndex
         IMmean = im2double(imread(fullfile(Original_image_dir, GT_im_dir(i).name)));
-        IM_CC = im2double(imread(fullfile(Original_image_dir, CC_im_dir(i).name)));
+        IMin = im2double(imread(fullfile(Original_image_dir, CC_im_dir(i).name)));
+        S = regexp(CC_im_dir(i).name, '\.', 'split');
+        IMname = S{1};
         fprintf('%s : \n',IMname);
-        fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n',csnr( IMin*255, IMmean*255, 0, 0 ),cal_ssim( IMin*255, IMmean*255, 0, 0 ));
+        CCPSNR = [CCPSNR csnr( IMin*255,IMmean*255, 0, 0 )];
+        CCSSIM = [CCSSIM cal_ssim( IMin*255, IMmean*255, 0, 0 )];
+        fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n',CCPSNR(end), CCSSIM(end));
         [h,w,ch] = size(IMin);
         hh = [0:1000:h,h];
         ww = [0:1000:w,w];
@@ -61,9 +62,9 @@ for sqrtmu = [0.1:0.1:1]
                 fprintf('Part %d/%d : \n',num_part, (length(hh)-1)*(length(ww)-1));
                 IMin_part = IMin(hh(nh)+1:hh(nh+1),ww(nw)+1:ww(nw+1),:);
                 IMmean_part = IMmean(hh(nh)+1:hh(nh+1),ww(nw)+1:ww(nw+1),:);
-%                 imwrite(IMmean_part, ['./DSCDL_BID_AN_CCNoise/compared/CCMean_' IMname '_' type '.png']);
-%                 imwrite(IMin_part, ['./DSCDL_BID_AN_CCNoise/compared/DSCDL_BID_AN_' IMname '_' type '.png']);
-%                 fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n',csnr( IMin_part*255, IMmean_part*255, 0, 0 ),cal_ssim( IMin_part*255, IMmean_part*255, 0, 0 ));
+                %                 imwrite(IMmean_part, ['./DSCDL_BID_AN_CCNoise/compared/CCMean_' IMname '_' type '.png']);
+                %                 imwrite(IMin_part, ['./DSCDL_BID_AN_CCNoise/compared/DSCDL_BID_AN_' IMname '_' type '.png']);
+                %                 fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n',csnr( IMin_part*255, IMmean_part*255, 0, 0 ),cal_ssim( IMin_part*255, IMmean_part*255, 0, 0 ));
                 % color or gray image
                 if ch==1
                     IMin_part_y = IMin_part;
@@ -111,18 +112,13 @@ for sqrtmu = [0.1:0.1:1]
             end
         end
         %% output
-        imwrite(IMout, ['./DSCDL_BID_AN_CCNoise/compared/DSCDL_BID_AN_CCNoise_conv-_' type '_' IMname '_' num2str(sqrtmu) '.png']);
-        PSNR(i) = csnr( IMout*255,IMmean*255, 0, 0 );
-        SSIM(i) = cal_ssim( IMout*255, IMmean*255, 0, 0 );
-        CCPSNR(i) = csnr( IM_CC*255,IMmean*255, 0, 0 );
-        CCSSIM(i) = cal_ssim( IM_CC*255, IMmean*255, 0, 0 );
-        fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(i), SSIM(i));
-        fprintf('The CC:  PSNR = %2.4f, SSIM = %2.4f. \n', CCPSNR(i), CCSSIM(i));
+        imwrite(IMout, ['../cc_Results/Real_ours/DSCDL_BID_AN_CCNoise_Conv_' IMname '_' num2str(sqrtmu) '.png']);
+        PSNR =[PSNR csnr( IMout*255,IMmean*255, 0, 0 )];
+        SSIM = [SSIM cal_ssim( IMout*255, IMmean*255, 0, 0 )];
+        fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(end), SSIM(end));
     end
     mPSNR = mean(PSNR);
     mSSIM = mean(SSIM);
-    CCmPSNR = mean(CCPSNR);
-    CCmSSIM = mean(CCSSIM);
-    savename = ['DSCDL_BID_AN_CCNoise/compared/DSCDL_BID_AN_CCNoise_conv-_' 'sqrtmu_' num2str(sqrtmu) '.mat'];
-    save(savename, 'mPSNR', 'mSSIM', 'PSNR', 'SSIM', 'CCmPSNR', 'CCmSSIM', 'CCPSNR', 'CCSSIM');
+    savename = ['../cc_Results/DSCDL_BID_AN_CCNoise_' 'sqrtmu_' num2str(sqrtmu) '.mat'];
+    save(savename, 'mPSNR', 'mSSIM', 'PSNR', 'SSIM');
 end
