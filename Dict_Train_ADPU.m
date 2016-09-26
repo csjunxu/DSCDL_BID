@@ -4,17 +4,17 @@ addpath('Utilities');
 addpath('SPAMS');
 addpath('BCGD');
 % addpath('SPAMS/release/mkl64');
- 
+
 load Data/params.mat;
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 % Parameters Setting
 par.rho = 0.05;
 par.lambda1         =       0.01;
-par.lambda2         =       0.001;
+par.lambda2         =       0.01;
 par.mu              =       0.01;
 par.sqrtmu          =       sqrt(par.mu);
 par.nu              =       0.1;
-par.nup              =       0.5;
+par.nup              =      0;
 par.epsilon         =        5e-3; 
 par.cls_num            =    cls_num;
 par.step               =    2;
@@ -26,9 +26,10 @@ par.L               =       par.win * par.win;
 param.K = par.K;
 param.iter=300;
 param.lambda = par.lambda1;
+param.lambda2 = par.lambda2;
 param.L = par.win * par.win;
 flag_initial_done = 0;
-paramsname = sprintf('Data/params_flexible.mat');
+paramsname = sprintf('Data/params.mat');
 save(paramsname,'par','param');
 
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
@@ -42,19 +43,8 @@ for i = 1 : par.cls_num
     fprintf('Double Semi-Coupled dictionary learning: Cluster: %d\n', i);
     D = mexTrainDL([XN_t;XC_t], param);
     Dini{i} = D;
-    Dict_BID_Initial = sprintf('Data/Dict_DSCDL_Initial_nup0.5_%s.mat', datestr(now, 30));
+    Dict_BID_Initial = sprintf('Data/Dict_DSCDL_Initial_nup0_%s.mat', datestr(now, 30));
     save(Dict_BID_Initial,'Dini');
-end
-
-% Double Semi-Coupled Dictionary Learning
-for i = 1 : par.cls_num
-    load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
-    XN_t = double(Xn{i});
-    XC_t = double(Xc{i});
-    clear Xn Xc;
-    XN_t = XN_t - repmat(mean(XN_t), [par.win^2 1]);
-    XC_t = XC_t - repmat(mean(XC_t), [par.win^2 1]);
-    load(Dict_BID_Initial,'Dini');
     D = Dini{i};
     clear Dini;
     Dn = D(1:par.win * par.win,:);
@@ -74,6 +64,6 @@ for i = 1 : par.cls_num
     Dict.UN{i} = Un;
     Dict.PN{i} = Pn;
     Dict.f{i} = f;
-    Dict_BID_backup = sprintf('Data/DSCDL_BID_Dict_ADPU_backup_nup0.5_%s.mat',datestr(now, 30));
+    Dict_BID_backup = sprintf('Data/DSCDL_BID_Dict_ADPU_backup_nup0_%s.mat',datestr(now, 30));
     save(Dict_BID_backup,'Dict');
 end

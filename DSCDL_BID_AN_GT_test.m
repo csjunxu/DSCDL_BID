@@ -20,15 +20,14 @@ load Data/params.mat par param;
 load Data/Dict_DSCDL_backup_flexible_20160724T132738.mat Dict;
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 par.cls_num = 100;
-for lambda = [0.01 0.05 0.1:0.1:1]
+for lambda = 0.01
     param.lambda = lambda;
-    for lambda2 = [0.0001 0.001 0.01 0.1 0.5 1]
+    for lambda2 = 0.01
         param.lambda2 = lambda2;
         for sqrtmu = 0.1
             par.sqrtmu = sqrtmu;
-            for nInnerLoop = [3 4]
+            for nInnerLoop = 3
                 par.nInnerLoop = nInnerLoop;
-                load ImageIndex.mat;
                 PSNR = [];
                 SSIM = [];
                 CCPSNR = [];
@@ -80,14 +79,14 @@ for lambda = [0.01 0.05 0.1:0.1:1]
                     end
                     fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', csnr( IMout*255,IMmean*255, 0, 0 ), cal_ssim( IMout*255, IMmean*255, 0, 0 ));
                     %% output
-                    imwrite(IMout, ['../cc_Results/Real_ours/DSCDL_BID_AN_CCNoise_Conv_' IMname '_' num2str(sqrtmu) '_lambda_' num2str(lambda) '_lambda2_' num2str(lambda2) '.png']);
+                    imwrite(IMout, ['../cc_Results/Real_DSCDL/DSCDL_' IMname '.png']);
                     PSNR =[PSNR csnr( IMout*255,IMmean*255, 0, 0 )];
                     SSIM = [SSIM cal_ssim( IMout*255, IMmean*255, 0, 0 )];
                     fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(end), SSIM(end));
                 end
                 mPSNR = mean(PSNR);
                 mSSIM = mean(SSIM);
-                savename = ['../cc_Results/DSCDL_BID_AN_CCNoise_nInLoop' num2str(nInnerLoop) '_sqrtmu_' num2str(sqrtmu) '_lambda_' num2str(lambda) '_lambda2_' num2str(lambda2) '.mat'];
+                savename = ['../cc_Results/Real_DSCDL2.mat'];
                 save(savename, 'mPSNR', 'mSSIM', 'PSNR', 'SSIM');
             end
         end

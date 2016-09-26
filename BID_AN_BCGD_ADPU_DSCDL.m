@@ -3,6 +3,7 @@ addpath('Data');
 addpath('Utilities');
 addpath('SPAMS');
 addpath('GatingNetwork');
+addpath('CGD4unconstrained');
 Original_image_dir = './TestingImages/';
 fpath = fullfile(Original_image_dir, '*.png');
 im_dir  = dir(fpath);
@@ -62,11 +63,12 @@ for i = 1 : im_num
             while Continue
                 fprintf('Iter: %d \n', nOuterLoop);
                 %                 IMout_part_y = bscdl_BID_full(IMin_part_y,model,Dict,par,param);
-                [IMout_part_y, PN] = bscdl_BCGD_ADPU_BID_full(IMin_part_y,model,Dict,par,param);
+                [IMout_part_y, PN] = bscdl_ADPU_BID_full(IMin_part_y,model,Dict,par,param);
+                %                 [IMout_part_y, PN] = bscdl_BCGD_ADPU_BID(IMin_part_y,model,Dict,par,param);
                 % Noise Level Estimation
                 nSig = NoiseLevel(IMout_part_y*255);
                 fprintf('The noise level is %2.4f.\n',nSig);
-                if nSig < 0.005 || nOuterLoop >= 10
+                if nSig < 0.0001 || nOuterLoop >= 10
                     Continue = false;
                 else
                     nOuterLoop = nOuterLoop + 1;
@@ -91,5 +93,5 @@ for i = 1 : im_num
         end
     end
     %% output
-    imwrite(IMout, ['./DSCDL_BID_AN_BCGD/BCDL_BCGD_ADPU_BID_AN_' type '_' IMname '.png']);
+    imwrite(IMout, ['./DSCDL_BID_AN_BCGD/BCDL_ADPU_BID_AN_' type '_' IMname '.png']);
 end

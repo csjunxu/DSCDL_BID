@@ -6,7 +6,6 @@
 % Wp    ,Ws    : Initial Projection Matrix
 % par          : Parameters 
 %
-%
 % Output
 % Alphap,Alphas: Output sparse coefficient of two domains
 % Dp    ,Ds    : Output Coupled Dictionaries
@@ -72,7 +71,7 @@ for t = 1 : par.nIter
     P1 = Xp - Dp * Alphap;
     P1 = P1(:)'*P1(:) / 2;
     P2 = par.lambda1 *  norm(Alphap, 1);    
-    P3 = Us * Alphas - Up * Alphap; %  20160725: Alphas - Wp * Alphap -> Us * Alphas - Up * Alphap
+    P3 = Us * Alphas - Up * Alphap; 
     P3 = P3(:)'*P3(:) / 2;
     P4 = par.nu * norm(Up, 'fro');
     fp = 1 / 2 * P1 + P2 + par.mu * (P3 + P4);
@@ -80,10 +79,10 @@ for t = 1 : par.nIter
     P1 = Xs - Ds * Alphas - Ps;
     P1 = P1(:)'*P1(:) / 2;
     P2 = par.lambda1 *  norm(Alphas, 1);    
-    P3 = Us * Alphas - Up * Alphap; %  20160725: Alphap - Ws * Alphas -> Us * Alphas - Up * Alphap
+    P3 = Us * Alphas - Up * Alphap; 
     P3 = P3(:)'*P3(:) / 2;
     P4 = par.nu * norm(Us, 'fro');  
-    P5 = par.nup * norm(Ps, 'fro'); % 20160815: added by Jun Xu 
+    P5 = par.nup * norm(Ps, 'fro'); 
     fs = 1 / 2 * P1 + P2 + par.mu * (P3 + P4 + P5);
     
     f = fp + fs;
