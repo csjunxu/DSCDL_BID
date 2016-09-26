@@ -1,15 +1,12 @@
-function [P, patch_size, nch] = sample_patches(im, patch_num, Patch_Channel, R_thresh)
-if Patch_Channel == 3,
-    patch_size = 6;
-    disp('RGB image sampled!');
-elseif Patch_Channel ==1
+function P = sample_patches_RGB(im, patch_size, patch_num, R_thresh)
+if size(im, 3) == 3,
     im = rgb2ycbcr(im);
-    im = im(:,:,1);
-    patch_size = 8;
-    disp('Grayscale image sampled!');
+    im = im(:, :, 1);
+else
+    disp('grayscale image sampled!');
 end
 
-[nrow, ncol, nch] = size(im);
+[nrow, ncol] = size(im);
 
 x = randperm(nrow-2*patch_size-1) + patch_size;
 y = randperm(ncol-2*patch_size-1) + patch_size;
@@ -28,12 +25,12 @@ while (idx < patch_num) && (ii<=n),
     row = xrow(ii);
     col = ycol(ii);
     
-    patch = im(row:row+patch_size-1,col:col+patch_size-1,:);
+    patch = im(row:row+patch_size-1,col:col+patch_size-1);
     
     % check if it is a stochastic patch
     np = patch(:) - mean(patch(:));
     npnorm=sqrt(sum(np.^2));
-    np_normalised=reshape(np/npnorm,patch_size,patch_size, nch);
+    np_normalised=reshape(np/npnorm,patch_size,patch_size);
     % eliminate that small variance patch
     if var(np)>0.001
         % eliminate stochastic patch
@@ -43,6 +40,7 @@ while (idx < patch_num) && (ii<=n),
             idx=idx+1;
         end
     end
+    
     ii=ii+1;
 end
 
@@ -56,10 +54,8 @@ function R = dominant_measure(p)
 
 hf1 = [-1,0,1];
 vf1 = [-1,0,1]';
-% Gx = conv2(p, hf1,'same'); %original
-% Gy = conv2(p, vf1,'same'); 
-Gx = convn(p, hf1,'same'); % changed by JX 20160926
-Gy = convn(p, vf1,'same');
+Gx = conv2(p, hf1,'same');
+Gy = conv2(p, vf1,'same');
 
 G=[Gx(:),Gy(:)];
 [U, S, V]=svd(G);

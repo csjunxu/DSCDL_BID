@@ -1,7 +1,7 @@
-function [XN, XC] = rnd_smp_patch_kNN(TrainingNoisy, TrainingClean, patch_size, num_patch_N, num_patch_C, R_thresh)
+function [XN, XC, patch_size, ch] = rnd_smp_patch_kNN(TrainingNoisy, TrainingClean, num_patch_N, num_patch_C, Patch_Channel, R_thresh)
 warning off;
-Nim_path = fullfile(TrainingNoisy,'*.png');
-Cim_path = fullfile(TrainingClean,'*.png');
+Nim_path = fullfile(TrainingNoisy,'*.jpg');
+Cim_path = fullfile(TrainingClean,'*.jpg');
 
 Nim_dir = dir(Nim_path);
 Cim_dir = dir(Cim_path);
@@ -13,7 +13,7 @@ Cim_num = length(Cim_dir);
 nper_img_N = zeros(1, Nim_num);
 for ii = 1:Nim_num
     Nim = im2double(imread(fullfile(TrainingNoisy, Nim_dir(ii).name)));
-    [h,w] = size(Nim);
+    [h,w,ch] = size(Nim);
     if h >= 1000
         randh = randi(h-1000);
         Nim = Nim(randh+1:randh+1000,:,:);
@@ -30,7 +30,7 @@ nper_img_N = floor(nper_img_N*num_patch_N/sum(nper_img_N));
 nper_img_C = zeros(1, Cim_num);
 for ii = 1:Cim_num
     Cim = im2double(imread(fullfile(TrainingClean, Cim_dir(ii).name)));
-    [h,w] = size(Cim);
+    [h,w,ch] = size(Cim);
     if h >= 1000
         randh = randi(h-1000);
         Cim = Cim(randh+1:randh+1000,:,:);
@@ -48,7 +48,7 @@ XCa = [];
 for ii = 1:Cim_num
     patch_num = nper_img_C(ii);
     Cim = im2double(imread(fullfile(TrainingClean, Cim_dir(ii).name)));
-    [h,w] = size(Cim);
+    [h,w,ch] = size(Cim);
     if h >= 1000
         randh = randi(h-1000);
         Cim = Cim(randh+1:randh+1000,:,:);
@@ -57,8 +57,7 @@ for ii = 1:Cim_num
         randw = randi(w-1000);
         Cim = Cim(:,randw+1:randw+1000,:);
     end
-%     imwrite(Cim,['./TrainingImages/Clean_' Cim_dir(ii).name]);
-    C = sample_patches(Cim, patch_size, patch_num, R_thresh);
+    [C, patch_size, ch] = sample_patches(Cim, patch_num, Patch_Channel, R_thresh);
     XCa = [XCa, C];
 end
 
@@ -77,8 +76,7 @@ for ii = 1:Nim_num
         randw = randi(w-1000);
         Nim = Nim(:,randw+1:randw+1000,:);
     end
-%     imwrite(Nim,['./TrainingImages/Noisy_' Nim_dir(ii).name]);
-    N = sample_patches(Nim, patch_size, patch_num, R_thresh);
+    [N, patch_size, ch] = sample_patches(Nim, patch_num, Patch_Channel, R_thresh);
     XN = [XN, N];
     % given noisy patches, search corresponding clean ones via k-NN
     IDX = knnsearch(N', XCa');
@@ -90,8 +88,7 @@ for ii = 1:Nim_num
 %     kneighbours = IDX2(:,1);
 %     XC2 = [XC2, XCa(:, kneighbours)];
 end
-
 % final results
 num_patch = size(XN,2);
-patch_path = ['Data/rnd_patches_' num2str(patch_size) 'x' num2str(patch_size) '_' num2str(num_patch) '_' num2str(R_thresh) '_' datestr(now, 30) '.mat'];
+patch_path = ['Data/rnd_patches_' num2str(patch_size) 'x' num2str(patch_size) 'x' num2str(ch) '_' num2str(num_patch) '_' num2str(R_thresh) '_' datestr(now, 30) '.mat'];
 save(patch_path, 'XN', 'XC');  
