@@ -1,11 +1,11 @@
 clear;
 addpath('Data');
 addpath('Utilities');
-TrainingNoisy = '../TrainingData/RGBNoisy/';
+TrainingNois y = '../TrainingData/RGBNoisy/';
 % TrainingClean = '../TrainingData/ycbcrDenoised/';
 TrainingClean = '../TrainingData/RGBBSDS500train/';
 
-Patch_Channel = 1;
+Patch_Channel = 3;
 num_patch_N = 100000;
 num_patch_C = 5*num_patch_N;
 R_thresh = 0.05;

@@ -92,6 +92,6 @@ for t = 1 : par.nIter
         break;
     end
     fprintf('Energy: %d\n',f);
-    save tempDSCDL_BID_Dict Ds Dp Us Up Ws Wp par param;
+    save tempDSCDL_BID_Dict_6x6x3_ADPU.mat Ds Dp Us Up Ws Wp par param;
 end
     
