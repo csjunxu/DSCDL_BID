@@ -6,11 +6,11 @@ addpath('GatingNetwork');
 Original_image_dir = './TestingImages/';
 fpath = fullfile(Original_image_dir, '*.png');
 im_dir  = dir(fpath);
-im_num = length(im_dir);
+im_num = length(im_dir); 
 
 %% load parameters and dictionary
-load Data/params.mat par param;
-load Data/DSCDL_BID_Dict_ADPU_backup_nup0.5_20160819T042830.mat Dict;
+load Data/params_Gray.mat par param;
+load Data/DSCDL_BID_Dict_ADPU_backup_nup0_20160927T212718.mat Dict;
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 par.cls_num = 100;
 par.nInnerLoop = 3;
@@ -45,7 +45,6 @@ for i = 1 : im_num
     %%
     for nh = listh
         for nw = listw
-             
             num_part = num_part + 1;
             IMin_part = IMin(hh(nh)+1:hh(nh+1),ww(nw)+1:ww(nw+1),:);
             imwrite(IMin_part, ['./TestedImages/' IMname '_' type '.png']);
@@ -63,39 +62,37 @@ for i = 1 : im_num
             %%
             nOuterLoop = 1;
             Continue = true;
-%             while Continue
-%                 fprintf('Iter: %d \n', nOuterLoop);
-%                 IMout_part_y = bscdl_BID_full(IMin_part_y,model,Dict,par,param);
-%                 % Noise Level Estimation
-%                 nSig = NoiseLevel(IMout_part_y*255);
-%                 fprintf('The noise level is %2.4f.\n',nSig);
-%                 if nSig < 0.005 || nOuterLoop >= 10
-%                     Continue = false;
-%                 else
-%                     nOuterLoop = nOuterLoop + 1;
-%                     IMin_part_y = IMout_part_y;
-%                 end
-%             end
-%             if ch==1
-%                 IMout_part = IMout_part_y;
-%             else
-%                 IMout_part_ycbcr = zeros(size(IMin_part));
-%                 IMout_part_ycbcr(:, :, 1) = IMout_part_y;
-%                 IMout_part_ycbcr(:, :, 2) = IMin_part_cb;
-%                 IMout_part_ycbcr(:, :, 3) = IMin_part_cr;
-%                 IMout_part = ycbcr2rgb(IMout_part_ycbcr);
-%             end
-%             fprintf('The nOurerLoop of the %d/%d part is : %d \n', num_part, (length(hh)-1)*(length(ww)-1), nOuterLoop);
-%             if strcmp(type, 'all')
-%                 IMout(hh(nh)+1:hh(nh+1),ww(nw)+1:ww(nw+1),:) = IMout_part;
-%             elseif strcmp(type, 'random') || strcmp(type, 'middle')
-%                 IMout = IMout_part;
-%             end
+            while Continue
+                fprintf('Iter: %d \n', nOuterLoop);
+                IMout_part_y = bscdl_BID_full(IMin_part_y,model,Dict,par,param);
+                % Noise Level Estimation
+                nSig = NoiseLevel(IMout_part_y*255);
+                fprintf('The noise level is %2.4f.\n',nSig);
+                if nSig < 0.0001 || nOuterLoop >= 10
+                    Continue = false;
+                else
+                    nOuterLoop = nOuterLoop + 1;
+                    IMin_part_y = IMout_part_y;
+                end
+            end
+            if ch==1
+                IMout_part = IMout_part_y;
+            else
+                IMout_part_ycbcr = zeros(size(IMin_part));
+                IMout_part_ycbcr(:, :, 1) = IMout_part_y;
+                IMout_part_ycbcr(:, :, 2) = IMin_part_cb;
+                IMout_part_ycbcr(:, :, 3) = IMin_part_cr;
+                IMout_part = ycbcr2rgb(IMout_part_ycbcr);
+            end
+            fprintf('The nOurerLoop of the %d/%d part is : %d \n', num_part, (length(hh)-1)*(length(ww)-1), nOuterLoop);
+            if strcmp(type, 'all')
+                IMout(hh(nh)+1:hh(nh+1),ww(nw)+1:ww(nw+1),:) = IMout_part;
+            elseif strcmp(type, 'random') || strcmp(type, 'middle')
+                IMout = IMout_part;
+            end
         end
     end
-    %% output
-%     imwrite(IMout, ['./DSCDL_BID_AN_ADPU/ADPU_nup0.5_DSCDL_BID_AN_' type '_' IMname '.png']);
-%     fprintf('The Loops of these parts are  %s. \n', num2str(nOuterLoop));
-%     Loops = nOuterLoop*par.nInnerLoop;
-%     save(['./DSCDL_BID_AN_ADPU/ADPU_nup0.5_DSCDL_BID_AN_' IMname '_Loops.mat'],'Loops');
+    % output
+    imwrite(IMout, ['./DSCDL_BID_AN_ADPU/DSCDL_BID_AN_ADPU_nup0_' type '_' IMname '.png']);
+    fprintf('The Loops of these parts are  %s. \n', num2str(nOuterLoop));
 end

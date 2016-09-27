@@ -10,8 +10,8 @@ im_num = length(im_dir);
 
 %% load parameters and dictionary
 load Data/params.mat par param;
-load Data/DSCDL_BID_Dict_ADPU_backup_nup0.5_20160819T042830.mat Dict;
-load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
+load Data/DSCDL_BID_Dict_6x6x3_ADPU_backup_nup0_20160927T221836.mat Dict;
+load Data/EMGM_6x6x3_100_20160927T093144.mat;
 par.cls_num = 100;
 par.nInnerLoop = 3;
 

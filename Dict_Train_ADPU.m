@@ -29,7 +29,7 @@ param.lambda = par.lambda1;
 param.lambda2 = par.lambda2;
 param.L = par.win * par.win;
 flag_initial_done = 0;
-paramsname = sprintf('Data/params.mat');
+paramsname = sprintf('Data/params_Gray.mat');
 save(paramsname,'par','param');
 
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;

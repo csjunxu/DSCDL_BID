@@ -6,7 +6,7 @@ for t = 1 : par.nInnerLoop
     if t == 1
         psf = fspecial('gaussian', par.win+2, 2.2);
         YH = data2patch(convn(IMout, psf, 'same') - IMout, par);
-        meanY = repmat(mean(YH), [par.win^2 1]);
+        meanY = repmat(mean(YH), [par.L 1]);
         YH = YH - meanY;
         AN = zeros(par.K, size(YH, 2));
         AC = zeros(par.K, size(YH, 2));
@@ -23,7 +23,7 @@ for t = 1 : par.nInnerLoop
     end
     XC = data2patch(IMout,  par);
     XN = data2patch(IMin,  par);
-    meanX = repmat(mean(XC), [par.win^2 1]);
+    meanX = repmat(mean(XC), [par.L 1]);
     XN = XN - meanX;
     XC = XC - meanX;
     for i = 1 : par.cls_num
