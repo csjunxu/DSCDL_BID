@@ -1,7 +1,7 @@
 clear;
 addpath('Data');
 addpath('Utilities');
-TrainingNois y = '../TrainingData/RGBNoisy/';
+TrainingNoisy = '../TrainingData/RGBNoisy/';
 % TrainingClean = '../TrainingData/ycbcrDenoised/';
 TrainingClean = '../TrainingData/RGBBSDS500train/';
 

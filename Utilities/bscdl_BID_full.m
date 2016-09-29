@@ -51,8 +51,6 @@ for t = 1 : par.nInnerLoop
         Y = [Xc; par.sqrtmu * Un * full(Alphan)];
         Alphac = full(mexLasso(Y, D,param));
         clear Y D;
-        %             %% ICCV2013 MML case
-        %             Alphac = Uc \ Un * Alphan;
         %% Reconstruction
         Xc = Dc * Alphac;
         XC(:, idx_cluster) = Xc;
@@ -60,4 +58,11 @@ for t = 1 : par.nInnerLoop
         AC(:, idx_cluster) = Alphac;
     end
     im_out = patch2data(XC+meanX, h, w, 1,par.win, par.step);
+    [N, ~]       =   Compute_NLM_Matrix( im_out , 5, par);
+    NTN          =   N'*N*0.05;
+    im_f = sparse(double(im_out(:)));
+    for i = 1 : fix(60 / t.^2)      
+        im_f = im_f  - NTN*im_f;
+    end
+    im_out = reshape(full(im_f), h, w);
 end
