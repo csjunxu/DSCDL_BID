@@ -9,7 +9,7 @@ im_dir  = dir(fpath);
 im_num = length(im_dir);
 
 %% load parameters and dictionary
-load Data/params.mat par param;
+load Data/params_Gray.mat par param;
 load Data/DSCDL_BID_Dict_ADPU_backup_flexible_20160817T151616.mat Dict;
 load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 par.cls_num = 100;
@@ -19,7 +19,7 @@ type = 'middle';
 % 'random';
 % 'middle';
 % 'all';
-for i = [5 6 7 13 15]
+for i = 1:im_num
     IMin=im2double(imread(fullfile(Original_image_dir, im_dir(i).name)));
     S = regexp(im_dir(i).name, '\.', 'split');
     IMname = S{1};
@@ -64,7 +64,7 @@ for i = [5 6 7 13 15]
             Continue = true;
             while Continue
                 fprintf('Iter: %d \n', nOuterLoop);
-                IMout_part_y = bscdl_BID_full(IMin_part_y,model,Dict,par,param);
+                IMout_part_y = bscdl_BID_P(IMin_part_y,model,Dict,par,param);
                 % Noise Level Estimation
                 nSig = NoiseLevel(IMout_part_y*255);
                 fprintf('The noise level is %2.4f.\n',nSig);
@@ -93,8 +93,5 @@ for i = [5 6 7 13 15]
         end
     end
     %% output
-    imwrite(IMout, ['./DSCDL_BID_AN_ADPU_PA/DSCDL_BID_AN_' type '_' IMname '.png']);
-    fprintf('The Loops of these parts are  %s. \n', num2str(nOuterLoop));
-    Loops = nOuterLoop*par.nInnerLoop;
-    save(['./DSCDL_BID_AN_ADPU_PA/DSCDL_BID_AN_' IMname '_Loops.mat'],'Loops');
+    imwrite(IMout, ['./DSCDL_BID_AN_ADPU/DSCDL_BID_AN_P_' type '_' IMname '.png']);
 end

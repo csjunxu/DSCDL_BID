@@ -27,7 +27,7 @@ for i = 1 : im_num
         fprintf('Iter: %d \n', nOuterLoop);
         IMout = bscdl_BID_RGB(IMin,model,Dict,par,param);
         % Noise Level Estimation
-        nSig = NoiseLevel(IMout*255);
+        nSig = NoiseEstimation(im2uint8(IMout),par.win);
         fprintf('The noise level is %2.4f.\n',nSig);
         if nSig < 0.0001 || nOuterLoop >= 10
             Continue = false;
