@@ -16,7 +16,7 @@ load Data/params_gray_PG.mat par param;
 load Data/DSCDL_ADPU_Dict_64_PG_BID_backup_20161001T083057.mat Dict;
 load Data/GMM_PG_10_8x8_64_20160930T171410.mat;
 par.cls_num = cls_num;
-par.nInnerLoop = 3;
+par.nInnerLoop = 1;
 
 PSNR = [];
 SSIM = [];
@@ -28,6 +28,7 @@ for i = 1 : im_num
     S = regexp(TT_im_dir(i).name, '\.', 'split');
     IMname = S{1};
     [h,w,ch] = size(IMin);
+    fprintf('%s: \n',TT_im_dir(i).name);
     CCPSNR = [CCPSNR csnr( IMin*255,IM_GT*255, 0, 0 )];
     CCSSIM = [CCSSIM cal_ssim( IMin*255, IM_GT*255, 0, 0 )];
     fprintf('The initial PSNR = %2.4f, SSIM = %2.4f. \n', CCPSNR(end), CCSSIM(end));
@@ -47,13 +48,13 @@ for i = 1 : im_num
     %%
     nOuterLoop = 1;
     Continue = true;
-    while Continue 
+    while Continue
         fprintf('Iter: %d \n', nOuterLoop);
         IMout_y = DSCDL_PG_BID_20161001(IMin_y,IM_GT_y,model,Dict,par,param);
         % Noise Level Estimation
         nSig = NoiseLevel(IMout_y*255);
         fprintf('The noise level is %2.4f.\n',nSig);
-        if nSig < 0.0001 || nOuterLoop >= 5
+        if nSig < 0.1 || nOuterLoop >= 5
             Continue = false;
         else
             nOuterLoop = nOuterLoop + 1;
