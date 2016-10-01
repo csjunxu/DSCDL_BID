@@ -60,20 +60,20 @@ for i = 1 : im_num
             nOuterLoop = nOuterLoop + 1;
             IMin_y = IMout_y;
         end
-    end
-    if ch==1
-        IMout = IMout_y;
-    else
-        IMout_ycbcr = zeros(size(IMin));
-        IMout_ycbcr(:, :, 1) = IMout_y;
-        IMout_ycbcr(:, :, 2) = IMin_cb;
-        IMout_ycbcr(:, :, 3) = IMin_cr;
-        IMout = ycbcr2rgb(IMout_ycbcr);
+        if ch==1
+            IMout = IMout_y;
+        else
+            IMout_ycbcr = zeros(size(IMin));
+            IMout_ycbcr(:, :, 1) = IMout_y;
+            IMout_ycbcr(:, :, 2) = IMin_cb;
+            IMout_ycbcr(:, :, 3) = IMin_cr;
+            IMout = ycbcr2rgb(IMout_ycbcr);
+        end
+        fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', csnr( IMout*255, IM_GT*255, 0, 0 ), cal_ssim( IMout*255, IM_GT*255, 0, 0 ));
     end
     %% output
     PSNR = [PSNR csnr( IMout*255, IM_GT*255, 0, 0 )];
     SSIM = [SSIM cal_ssim( IMout*255, IM_GT*255, 0, 0 )];
-    fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(end), SSIM(end));
     %% output
     imwrite(IMout, ['../cc_Results/Real_DSCDL/DSCDL_PG_BID_AN_' IMname '.png']);
 end
