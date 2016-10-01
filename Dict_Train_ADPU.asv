@@ -4,12 +4,12 @@ addpath('Utilities');
 addpath('SPAMS');
 % addpath('SPAMS/release/mkl64');
 
-load Data/params_gray_PG.mat;
-load Data/GMM_PG_8x8_100_20160930T014557.mat;
+load Data/params.mat;
+load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 % Parameters Setting
 par.rho = 0.05;
 par.lambda1         =       0.01;
-par.lambda2         =       0.001;
+par.lambda2         =       0.01;
 par.mu              =       0.01;
 par.sqrtmu          =       sqrt(par.mu);
 par.nu              =       0.1;
@@ -17,7 +17,7 @@ par.nup              =      0;
 par.epsilon         =        5e-3; 
 par.cls_num            =    cls_num;
 par.step               =    2;
-par.win                =    par.patch_size;
+par.win                =    8;
 par.nIter           =       100;
 par.t0              =       5;
 par.K               =       256;
@@ -28,10 +28,10 @@ param.lambda = par.lambda1;
 param.lambda2 = par.lambda2;
 param.L = par.win * par.win;
 flag_initial_done = 0;
-paramsname = sprintf('Data/params_gray_PG.mat');
+paramsname = sprintf('Data/params_Gray.mat');
 save(paramsname,'par','param');
 
-load Data/GMM_PG_8x8_100_20160930T014557.mat;
+load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
 % Initiate Dictionary
 Dini = [];
 for i = 1 : par.cls_num
@@ -42,7 +42,7 @@ for i = 1 : par.cls_num
     fprintf('Double Semi-Coupled dictionary learning: Cluster: %d\n', i);
     D = mexTrainDL([XN_t;XC_t], param);
     Dini{i} = D;
-    Dict_BID_Initial = sprintf('Data/DSCDL_Dict_PG_BID_Initial_nup0_%s.mat', datestr(now, 30));
+    Dict_BID_Initial = sprintf('Data/Dict_DSCDL_Initial_nup0_%s.mat', datestr(now, 30));
     save(Dict_BID_Initial,'Dini');
     D = Dini{i};
     clear Dini;
@@ -63,6 +63,6 @@ for i = 1 : par.cls_num
     Dict.UN{i} = Un;
     Dict.PN{i} = Pn;
     Dict.f{i} = f;
-    Dict_BID_backup = sprintf('Data/DSCDL_ADPU_Dict_PG_BID_backup_nup0_%s.mat',datestr(now, 30));
+    Dict_BID_backup = sprintf('Data/DSCDL_BID_Dict_ADPU_backup_nup0_%s.mat',datestr(now, 30));
     save(Dict_BID_backup,'Dict');
 end

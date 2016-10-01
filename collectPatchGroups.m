@@ -6,16 +6,15 @@ TrainingNoisy = '../TrainingData/RGBNoisy/';
 % TrainingClean = '../TrainingData/ycbcrDenoised/';
 TrainingClean = '../TrainingData/RGBBSDS500train/';
 
-
 patch_size = 8; 
 Patch_Channel = 1;
-num_patch_N = 100000;
+num_patch_N = 200000;
 num_patch_C = 5*num_patch_N;
 R_thresh = 0.05;
-cls_num = 100;
+cls_num = 64;
 
 % Parameters Setting
-par.nlsp = 5;
+par.nlsp = 10;
 par.step               =    2;
 par.Patch_Channel = Patch_Channel;
 par.patch_size                =    patch_size;
@@ -43,10 +42,10 @@ save Data/params_gray_PG.mat par param;
 [model, llh, cls_idx]  =  empggm(XC, cls_num,par.nlsp); 
 for c = 1 : cls_num
     idx = find(cls_idx == c);
-    if (length(idx) >  10000)
-        select_idx = randperm(length(idx));
-        idx = idx(select_idx(1:10000));
-    end
+%     if (length(idx) >  10000)
+%         select_idx = randperm(length(idx));
+%         idx = idx(select_idx(1:10000));
+%     end
     Xn{c} = XN(:, idx);
     Xc{c} = XC(:, idx);
 end
@@ -62,5 +61,5 @@ end
 % model.nmodels = model.nmodels + 1;
 % clear XN XC XN0 XC0;
 % save model
-GMM_model = ['Data/GMM_PG_' num2str(patch_size) 'x' num2str(patch_size) '_' num2str(cls_num) '_' datestr(now, 30) '.mat'];
+GMM_model = ['Data/GMM_PG_' num2str(par.nlsp) '_' num2str(patch_size) 'x' num2str(patch_size) '_' num2str(cls_num) '_' datestr(now, 30) '.mat'];
 save(GMM_model, 'model', 'Xn','Xc','cls_num');  

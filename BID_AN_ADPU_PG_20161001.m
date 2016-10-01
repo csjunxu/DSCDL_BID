@@ -1,4 +1,4 @@
-clear,clc;
+clear;
 addpath('Data');
 addpath('Utilities');
 addpath('SPAMS');
@@ -12,10 +12,10 @@ TT_im_dir  = dir(TT_fpath);
 im_num = length(TT_im_dir);
 
 %% load parameters and dictionary
-load Data/params_flexible.mat par param;
-load Data/Dict_DSCDL_backup_flexible_20160724T132738.mat Dict;
-load Data/EMGM_8x8_100_knnNI2BS500Train_20160722T082406.mat;
-par.cls_num = 100;
+load Data/params_gray_PG.mat par param;
+load Data/DSCDL_ADPU_Dict_64_PG_BID_backup_20161001T083057.mat Dict;
+load Data/GMM_PG_10_8x8_64_20160930T171410.mat;
+par.cls_num = cls_num;
 par.nInnerLoop = 3;
 
 PSNR = [];
@@ -34,19 +34,22 @@ for i = 1 : im_num
     % color or gray image
     if ch==1
         IMin_y = IMin;
+        IM_GT_y = IM_GT;
     else
         % change color space, work on illuminance only
         IMin_ycbcr = rgb2ycbcr(IMin);
         IMin_y = IMin_ycbcr(:, :, 1);
         IMin_cb = IMin_ycbcr(:, :, 2);
         IMin_cr = IMin_ycbcr(:, :, 3);
+        IM_GT_ycbcr = rgb2ycbcr(IM_GT);
+        IM_GT_y = IM_GT_ycbcr(:, :, 1);
     end
     %%
     nOuterLoop = 1;
     Continue = true;
-    while Continue
+    while Continue 
         fprintf('Iter: %d \n', nOuterLoop);
-        IMout_y = bscdl_BID_full(IMin_y,model,Dict,par,param);
+        IMout_y = DSCDL_PG_BID_20161001(IMin_y,IM_GT_y,model,Dict,par,param);
         % Noise Level Estimation
         nSig = NoiseLevel(IMout_y*255);
         fprintf('The noise level is %2.4f.\n',nSig);
@@ -60,7 +63,7 @@ for i = 1 : im_num
     if ch==1
         IMout = IMout_y;
     else
-        IMout_ycbcr = zeros(size(IMin)); 
+        IMout_ycbcr = zeros(size(IMin));
         IMout_ycbcr(:, :, 1) = IMout_y;
         IMout_ycbcr(:, :, 2) = IMin_cb;
         IMout_ycbcr(:, :, 3) = IMin_cr;
@@ -71,10 +74,10 @@ for i = 1 : im_num
     SSIM = [SSIM cal_ssim( IMout*255, IM_GT*255, 0, 0 )];
     fprintf('The final PSNR = %2.4f, SSIM = %2.4f. \n', PSNR(end), SSIM(end));
     %% output
-    imwrite(IMout, ['../cc_Results/Real_DSCDL/DSCDL_BID_AN_NLM_' IMname '.png']);
+    imwrite(IMout, ['../cc_Results/Real_DSCDL/DSCDL_PG_BID_AN_' IMname '.png']);
 end
 mPSNR = mean(PSNR);
 mSSIM = mean(SSIM);
 mCCPSNR = mean(CCPSNR);
 mCCSSIM = mean(CCSSIM);
-save(['C:\Users\csjunxu\Desktop\CVPR2017\cc_Results\DSCDL_BID_AN_NLM.mat'],'PSNR','mPSNR','SSIM','mSSIM','CCPSNR','mCCPSNR','CCSSIM','mCCSSIM');
+save(['C:\Users\csjunxu\Desktop\CVPR2017\cc_Results\DSCDL_PG_BID_AN.mat'],'PSNR','mPSNR','SSIM','mSSIM','CCPSNR','mCCPSNR','CCSSIM','mCCSSIM');
