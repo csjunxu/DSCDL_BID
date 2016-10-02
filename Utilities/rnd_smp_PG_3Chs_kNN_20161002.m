@@ -75,11 +75,11 @@ for cc = 1:ch
         [h,w,ch] = size(Nim);
         if h >= 1000
             randh = randi(h-1000);
-            Nim = Nim(randh+1:randh+1000,:,cc);
+            Nim = Nim(randh+1:randh+1000,:,:);
         end
         if w >= 1000
             randw = randi(w-1000);
-            Nim = Nim(:,randw+1:randw+1000,cc);
+            Nim = Nim(:,randw+1:randw+1000,:);
         end 
         Nim = Nim(:,:,cc);
         [NPG, NPGmean] = sample_PatchGroups(Nim, patch_num, par);
