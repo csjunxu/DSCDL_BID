@@ -1,12 +1,12 @@
 function [PG, PGmean] = sample_PatchGroups(im, patch_num, par)
 if size(im, 3) == 3,
     im = rgb2ycbcr(im);
+    im = im(:,:,1);
 end
 
-if par.Patch_Channel == 3
+if size(im, 3) == 3,
     disp('RGB image sampled!');
 else
-    im = im(:,:,1);
     disp('Grayscale image sampled!');
 end
 
@@ -54,9 +54,18 @@ while (idx < patch_num) && (ii<=n),
     patch = im(row:row+par.patch_size-1,col:col+par.patch_size-1,:);
     % get PG from P
     [PatchGroup, mean] = Get_PGfP(Patches,row,col,par);
-    PG = [PG PatchGroup];
-    PGmean = [PGmean mean];
-    idx=idx+1;
+    npnorm = sqrt(sum(patch.^2));
+    np_normalised=reshape(patch/npnorm,par.patch_size,par.patch_size, nch);
+    % eliminate that small variance patch
+    if var(np)>0.001
+        % eliminate stochastic patch
+        if dominant_measure(np_normalised)>R_thresh
+            %if dominant_measure_G(Lpatch1,Lpatch2)>R_thresh
+            PG = [PG PatchGroup];
+            PGmean = [PGmean mean];
+            idx=idx+1;
+        end
+    end
     ii=ii+1;
 end
 fprintf('sampled %d patches.\r\n',patch_num);

@@ -1,6 +1,7 @@
 function im_out = DSCDL_PG_BID_20161001(IMin_y,IM_GT_y,model,Dict,par,param)
 %% Initialization
 im_out = IMin_y;
+fprintf('nInnerLoop: The initial PSNR = %2.4f, SSIM = %2.4f. \n', csnr( IMin_y*255,IM_GT_y*255, 0, 0 ), cal_ssim( IMin_y*255, IM_GT_y*255, 0, 0 ));
 for t = 1 : par.nInnerLoop
     if t == 1
         psf = fspecial('gaussian', par.win+2, 2.2);
@@ -46,10 +47,10 @@ for t = 1 : par.nInnerLoop
             Alphac = Uc \ Un * Alphan;
             Xc = Dc * Alphac;
         else
-            Alphac = AC(:, idx_cluster);
+            Alphac = AC(:, idx);
         end
         %% Transformation
-        D = [Dn; par.sqrtmu * Un]; 
+        D = [Dn; par.sqrtmu * Un];
         Y = [Xn; par.sqrtmu * Uc * full(Alphac)];
         Alphan = mexLasso(Y, D,param);
         clear Y D;
@@ -67,5 +68,5 @@ for t = 1 : par.nInnerLoop
     end
     %% PGs to Image
     im_out = PGs2Image(X_hat,W,par);
-    fprintf('nInnerLoop: %d, PSNR = %2.4f, SSIM = %2.4f. \n', t, csnr( im_out*255, IM_GT_y*255, 0, 0 ),cal_ssim( im_out*255, IM_GT_y*255, 0, 0 ));
+    fprintf('nInnerLoop: The final PSNR = %2.4f, SSIM = %2.4f. \n', csnr( im_out*255, IM_GT_y*255, 0, 0 ),cal_ssim( im_out*255, IM_GT_y*255, 0, 0 ));
 end

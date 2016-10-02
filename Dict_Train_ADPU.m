@@ -2,7 +2,6 @@ clear;clc;
 addpath('Data');
 addpath('Utilities');
 addpath('SPAMS');
-% addpath('SPAMS/release/mkl64');
 
 load Data/params_gray_PG.mat;
 load Data/GMM_PG_8x8_100_20160930T014557.mat;
