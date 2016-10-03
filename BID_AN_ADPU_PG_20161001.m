@@ -16,7 +16,7 @@ load Data/params_gray_PG.mat par param;
 load Data/DSCDL_ADPU_Dict_64_PG_BID_backup_20161001T083057.mat Dict;
 load Data/GMM_PG_10_8x8_64_20160930T171410.mat;
 par.cls_num = cls_num;
-par.nInnerLoop = 1;
+par.nInnerLoop = 2;
 
 PSNR = [];
 SSIM = [];
@@ -81,4 +81,4 @@ mPSNR = mean(PSNR);
 mSSIM = mean(SSIM);
 mCCPSNR = mean(CCPSNR);
 mCCSSIM = mean(CCSSIM);
-save(['C:\Users\csjunxu\Desktop\CVPR2017\cc_Results\DSCDL_PG_BID_AN.mat'],'PSNR','mPSNR','SSIM','mSSIM','CCPSNR','mCCPSNR','CCSSIM','mCCSSIM');
+save(['C:\Users\csjunxu\Desktop\CVPR2017\cc_Results\DSCDL_PG_BID_AN_InLoop2.mat'],'PSNR','mPSNR','SSIM','mSSIM','CCPSNR','mCCPSNR','CCSSIM','mCCSSIM');
