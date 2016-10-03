@@ -53,6 +53,7 @@ for i = 1 : im_num
             end
             fprintf('Channel %d: The final PSNR = %2.4f, SSIM = %2.4f. \n', cc, csnr( IMout_cc*255, IM_GT_cc*255, 0, 0 ), cal_ssim( IMout_cc*255, IM_GT_cc*255, 0, 0 ));
         end
+        IMout(:,:,cc) = IMout_cc;
     end
     %% output
     PSNR = [PSNR csnr( IMout*255, IM_GT*255, 0, 0 )];
