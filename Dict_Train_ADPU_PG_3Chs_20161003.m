@@ -14,8 +14,6 @@ for j = 1:par.Patch_Channel
     for i = 1 : par.cls_num
         XN_t = double(Xn{j,i});
         XC_t = double(Xc{j,i});
-        XN_t = XN_t - repmat(mean(XN_t), [par.win^2 1]);
-        XC_t = XC_t - repmat(mean(XC_t), [par.win^2 1]);
         fprintf('DSCDL: Channel: %d, Cluster: %d\n', j, i);
         D = mexTrainDL([XN_t;XC_t], param);
         Dini{j,i} = D;
